@@ -4,7 +4,9 @@ var static_phrases = {
         "Everyone at work is waiting for you",
         "You're going to be a star today",
         "No one is more important than you are",
-        "Love yourself"],
+        "Love yourself",
+        "Be diligent",
+        "Hard work is good work"],
     subliminal : [
         "Work harder"],
     messages : [
@@ -15,8 +17,8 @@ var static_phrases = {
     hellos: ["Welcome Back",
         "Nice to see you",
         "Happy you're here"]
-
 }
+
 var live = true;
 //slider
 var compBox;
@@ -30,10 +32,14 @@ var infoBox;
 var subBox;
 var hello_text;
 var myCanvas;
+var showName = true;
 
 function preload() {
     replay = loadFont('static/BPreplay/BPreplay.otf');
     skyline = loadFont('static/Small Town Skyline.ttf');
+    dancing = loadFont('static/dancing-script-ot/DancingScript-Regular.otf');
+    lekton = loadFont('static/lekton/Lekton-Regular.ttf');
+    tree = loadImage('static/Treehouse-100.png');
     user_data = {
         name: "Michael Skirpan",
         friends: ["Jackie Cameron",
@@ -53,7 +59,7 @@ function setup() {
     textFont(replay);
     frameRate(10);
     reBox();
-    console.log('setup called');
+    setTimeout(killName, 10000);
 }
 
 function draw() {
@@ -61,14 +67,32 @@ function draw() {
         return
     }
     background('black');
-    push();
-        fill(255, 255, 255);
-        textFont(replay);
-        textSize(36);
-        textAlign(CENTER);
-        text(hello_text + " " + user_data.name, windowWidth*.5, windowHeight * .2 );
-    pop();
+    image(tree, windowWidth*.9, 10);
+    if (showName == true) {
+        push();
+            fill(255, 255, 255);
+            textFont(replay);
+            textSize(36);
+            textAlign(CENTER);
+            text(hello_text + " " + user_data.name, windowWidth*.5, windowHeight * .2 );
+        pop();
+    } else {
+        push();
+            fill(255, 255, 255);
+            textFont(lekton);
+            textSize(32);
+            textAlign(LEFT);
+            text("TO-DO LIST:", windowWidth*.7, windowHeight*.4);
+            textSize(26);
+            text("1. Prep for meeting", windowWidth*.75, windowHeight*.45);
+        pop();
+    }
     msgBox.update();
+    compBox.update();
+}
+
+function killName () {
+    showName = false;
 }
 
 var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
@@ -81,9 +105,8 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
     this.stay = stay;
     this.going = false;
     this.fade = 'up';
-    this.phrases = static_phrases['messages'];
+    this.phrases = shuffle(static_phrases.messages);
     this.holdoff = pausing;
-    shuffle(this.phrases);
 
     //Change opacity
     this.update = function () {
@@ -143,7 +166,6 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
     }
 
     this.nextText = function () {
-        console.log('next text');
         rando1 = floor(random(0, user_data['friends'].length));
         name = user_data['friends'][rando1];
         if (this.phrases.length > 0) {
@@ -159,14 +181,87 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
     }
 }
 
-var SlideBox = function ( size, y_pos, orient, font, speed ) {
+var SlideBox = function ( size, y_pos, speed, stay, pausing ) {
     //orient == left -> textAlign(RIGHT)
-    this.orient = orient;
-    this.font = font;
-    this.y_pos = y_pos;
+    this.x = -300;
+    this.y = y_pos;
     this.text_size = size;
     this.on = false;
+    this.going = false;
     this.speed = speed;
+    this.stay = stay;
+    this.holdoff = pausing;
+    this.phrases = shuffle(static_phrases.compliments);
+    this.fade = 'up';
+    this.curr_text = '';
+    shuffle(this.phrases);
+
+    this.update = function () {
+        if (this.on == false) {
+            this.pause();
+            return;
+        }
+
+        push();
+            textFont(dancing);
+            fill(255, 255, 255);
+            textAlign(CENTER);
+            textSize(this.text_size);
+            text(this.curr_text, this.x, this.y);
+        pop();
+        if (this.going == false) {
+            return;
+        }
+        if (this.fade == 'up') {
+            this.x += this.speed;
+        } else {
+            this.x -= this.speed;
+        }
+        if (this.x >= windowWidth*.3) {
+            this.going = false;
+            this.fade = 'down';
+            this.ontime();
+            return;
+        } else if (this.x <= -301) {
+            this.on = false;
+            this.going = false;
+        }
+
+    }
+
+    this.ontime = function () {
+        mine = this;
+        this.going = false;
+        setTimeout(function () {
+            mine.activate();
+        }, mine.stay);
+    }
+
+    this.activate = function () {
+        if (this.going == false) {
+            this.going = true;
+        }
+    }
+
+    this.pause = function () {
+        this.on = true;
+        mine = this;
+        setTimeout(function () {
+            mine.nextText();
+        }, this.holdoff);
+    }
+
+    this.nextText = function () {
+        if (this.phrases.length > 0) {
+            phrase = this.phrases.pop();
+        } else {
+            stopIt();
+        }
+        this.curr_text = phrase;
+        this.on = true;
+        this.going = true;
+        this.fade = 'up';
+    }
 
 }
 
@@ -183,7 +278,8 @@ var SlideBox = function ( size, y_pos, orient, font, speed ) {
 
 function reBox() {
     //Take new user data and fill boxes
-    msgBox = new FadeBox(48, windowWidth*.5, windowHeight*.8, 3000, 2000);
+    msgBox = new FadeBox(48, windowWidth*.5, windowHeight*.9, 3000, 2000);
+    compBox = new SlideBox(40, windowHeight*.1, 50, 1000, 2000);
 
 }
 
@@ -191,20 +287,17 @@ function stopIt() {
     //Call when user scans again
     myCanvas.clear();
     background(0, 0 ,0);
-    console.log('reset background');
     live = false;
 }
 
 function startIt() {
     //Call after a new scanner call
-    console.log("starting up");
     reBox();
     loop();
     live = true;
 }
 
 function mouseClicked() {
-    console.log(live);
     if (live == true) {
         stopIt();
     } else {
