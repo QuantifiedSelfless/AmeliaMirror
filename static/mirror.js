@@ -76,7 +76,7 @@ function setup() {
     myCanvas.parent('processing');
     textFont(replay);
     console.log(weather.weather[0].main);
-    if (hour() >= 20){
+    if (hour() >= 20 || hour() <= 6){
        weather_icon = loadImage(weather_night_lookup[weather.weather[0].main]) 
     } else {
         weather_icon = loadImage(weather_day_lookup[weather.weather[0].main])
