@@ -29,6 +29,7 @@ var infoBox;
 //slider
 var subBox;
 var hello_text;
+var myCanvas;
 
 function preload() {
     replay = loadFont('static/BPreplay/BPreplay.otf');
@@ -47,14 +48,18 @@ function preload() {
 }
 
 function setup() {
-    var myCanvas = createCanvas(windowWidth, windowHeight);
+    myCanvas = createCanvas(windowWidth, windowHeight);
     myCanvas.parent('processing');
     textFont(replay);
     frameRate(10);
     reBox();
+    console.log('setup called');
 }
 
 function draw() {
+    if (live == false) {
+        return
+    }
     background('black');
     push();
         fill(255, 255, 255);
@@ -64,9 +69,6 @@ function draw() {
         text(hello_text + " " + user_data.name, windowWidth*.5, windowHeight * .2 );
     pop();
     msgBox.update();
-
-
-    
 }
 
 var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
@@ -187,18 +189,22 @@ function reBox() {
 
 function stopIt() {
     //Call when user scans again
-    noLoop();
+    myCanvas.clear();
     background(0, 0 ,0);
+    console.log('reset background');
     live = false;
 }
 
 function startIt() {
     //Call after a new scanner call
-    loop();
+    console.log("starting up");
     reBox();
+    loop();
+    live = true;
 }
 
-function mousePressed() {
+function mouseClicked() {
+    console.log(live);
     if (live == true) {
         stopIt();
     } else {
