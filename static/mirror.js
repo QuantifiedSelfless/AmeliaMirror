@@ -18,6 +18,24 @@ var static_phrases = {
         "Nice to see you",
         "Happy you're here"]
 }
+var weather_day_lookup = {
+    "Drizzle" : "static/Rain-100.png",
+    "Rain" : "static/Rain-100.png",
+    "Thunderstorm" : "static/Storm-100.png",
+    "Snow" : "static/Snow-100.png",
+    "Atmosphere" : "static/Fog Day-100.png",
+    "Clear" : "static/Sun-100.png",
+    "Clouds" : "static/Partly Cloudy Day-100.png"
+};
+var weather_night_lookup = {
+    "Drizzle" : "static/Rain-100.png",
+    "Rain" : "static/Rain-100.png",
+    "Thunderstorm" : "static/Storm-100.png",
+    "Snow" : "static/Snow-100.png",
+    "Atmosphere" : "static/Fog Night-100.png",
+    "Clear" : "static/Bright Moon-100.png",
+    "Clouds" : "static/Partly Cloudy Night-100.png"
+};
 
 var live = true;
 //slider
@@ -39,7 +57,6 @@ function preload() {
     skyline = loadFont('static/Small Town Skyline.ttf');
     dancing = loadFont('static/dancing-script-ot/DancingScript-Regular.otf');
     lekton = loadFont('static/lekton/Lekton-Regular.ttf');
-    tree = loadImage('static/Treehouse-100.png');
     user_data = {
         name: "Michael Skirpan",
         friends: ["Jackie Cameron",
@@ -49,6 +66,7 @@ function preload() {
         work: "CU-Boulder",
 
     }
+    weather = loadJSON('http://api.openweathermap.org/data/2.5/weather?zip=80305&appid=4efeb242f4b0a7c03742769c5a5755e5');
     rando = floor(random(0, static_phrases.hellos.length));
     hello_text = static_phrases.hellos[rando];
 }
@@ -57,6 +75,12 @@ function setup() {
     myCanvas = createCanvas(windowWidth, windowHeight);
     myCanvas.parent('processing');
     textFont(replay);
+    console.log(weather.weather[0].main);
+    if (hour() >= 20){
+       weather_icon = loadImage(weather_night_lookup[weather.weather[0].main]) 
+    } else {
+        weather_icon = loadImage(weather_day_lookup[weather.weather[0].main])
+    }
     frameRate(10);
     reBox();
     setTimeout(killName, 10000);
@@ -67,7 +91,7 @@ function draw() {
         return
     }
     background('black');
-    image(tree, windowWidth*.9, 10);
+    image(weather_icon, windowWidth*.9, 10);
     if (showName == true) {
         push();
             fill(255, 255, 255);
