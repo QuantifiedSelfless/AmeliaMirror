@@ -1,3 +1,5 @@
+//var socket = io.connect('http://localhost:3000');
+
 var user_data;
 var static_phrases = {
     compliments: ["You look beautiful today",
@@ -6,17 +8,25 @@ var static_phrases = {
         "No one is more important than you are",
         "Love yourself",
         "Be diligent",
-        "Hard work is good work"],
-    subliminal : [
-        "Work harder"],
+        "Hard work is good work",
+        "We are all proud of you",
+        "Nothing better than a work day!",
+        "Keep calm",
+        "Breathe"],
+    work_messages: [
+        "says keep up the good work",
+        "asks you to check if you're late on anything",
+        "reminds you to be on time next week"],
     messages : [
         "wants you to have a great day!",
         "reminds you to enjoy work!",
         "hopes you remember they care about you",
-        "winks at your cute self!"],
+        "is sending good vibes!",
+        "hopes you have a productive day"],
     hellos: ["Welcome Back",
         "Nice to see you",
-        "Happy you're here"]
+        "Happy you're here",
+        "You look great"]
 }
 var weather_day_lookup = {
     "Drizzle" : "static/Rain-100.png",
@@ -37,7 +47,8 @@ var weather_night_lookup = {
     "Clouds" : "static/Partly Cloudy Night-100.png"
 };
 
-var live = true;
+// set this to false
+var live = false;
 //slider
 var compBox;
 //static
@@ -48,8 +59,16 @@ var msgBox;
 var infoBox;
 //slider
 var subBox;
+var msgDone = true;
+var compDone = true;
 var hello_text;
 var myCanvas;
+var onNow1;
+var pauseNow1;
+var onNow2;
+var pauseNow2;
+var killTimer;
+var allTimers = [onNow1, pauseNow1, onNow2, pauseNow2, killTimer];
 var showName = true;
 
 function preload() {
@@ -63,7 +82,7 @@ function preload() {
         "Julie Cafarella",
         "Simone Hyater-Adams",
         "Patrick Cooper"],
-        work: "CU-Boulder",
+        work: ["CU-Boulder"],
 
     }
     weather = loadJSON('http://api.openweathermap.org/data/2.5/weather?zip=80305&appid=4efeb242f4b0a7c03742769c5a5755e5');
@@ -82,8 +101,7 @@ function setup() {
         weather_icon = loadImage(weather_day_lookup[weather.weather[0].main])
     }
     frameRate(10);
-    reBox();
-    setTimeout(killName, 10000);
+    background('black');
 }
 
 function draw() {
@@ -100,19 +118,27 @@ function draw() {
             textAlign(CENTER);
             text(hello_text + " " + user_data.name, windowWidth*.5, windowHeight * .2 );
         pop();
-    } else {
-        push();
-            fill(255, 255, 255);
-            textFont(lekton);
-            textSize(32);
-            textAlign(LEFT);
-            text("TO-DO LIST:", windowWidth*.7, windowHeight*.4);
-            textSize(26);
-            text("1. Prep for meeting", windowWidth*.75, windowHeight*.45);
-        pop();
     }
-    msgBox.update();
-    compBox.update();
+    // } else {
+    //     push();
+    //         fill(255, 255, 255);
+    //         textFont(lekton);
+    //         textSize(32);
+    //         textAlign(LEFT);
+    //         text("TO-DO LIST:", windowWidth*.7, windowHeight*.4);
+    //         textSize(26);
+    //         text("1. Prep for meeting", windowWidth*.75, windowHeight*.45);
+    //     pop();
+    // }
+    if (msgDone == false){
+      msgBox.update();  
+    }
+    if (compDone == false){
+        compBox.update();
+    }
+    if (msgDone == true && compDone == true) {
+        stopIt();
+    }
 }
 
 function killName () {
@@ -129,7 +155,8 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
     this.stay = stay;
     this.going = false;
     this.fade = 'up';
-    this.phrases = shuffle(static_phrases.messages);
+    this.phrases = shuffle(static_phrases.messages).slice(0,5);
+    this.work = shuffle(static_phrases.work_messages).slice(0,2);
     this.holdoff = pausing;
 
     //Change opacity
@@ -170,7 +197,7 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
     this.ontime = function () {
         me = this;
         this.going = false;
-        setTimeout(function () {
+        onNow1 = setTimeout(function () {
             me.activate();
         }, me.stay);
     }
@@ -184,17 +211,31 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
     this.pause = function () {
         this.on = true;
         me = this;
-        setTimeout(function () {
+        pauseNow1 = setTimeout(function () {
             me.nextText();
         }, this.holdoff);
     }
 
     this.nextText = function () {
-        rando1 = floor(random(0, user_data['friends'].length));
-        name = user_data['friends'][rando1];
-        if (this.phrases.length > 0) {
+        rando = floor(random(0, 2));
+        console.log(rando);
+        if (this.phrases.length == 0) {
+            rando = 1;
+        } else if (this.work.length == 0) {
+            rando = 0;
+        } 
+        if (rando == 0 && this.phrases.length > 0) {
+            rando1 = floor(random(0, user_data['friends'].length));
+            name = user_data['friends'][rando1];
+            console.log(this.phrases)
             phrase = this.phrases.pop();
+        } else if (rando == 1 && this.phrases.length > 0) {
+            rando1 = floor(random(0, user_data['work'].length));
+            name = user_data['work'][rando1];
+            console.log(this.work);
+            phrase = this.work.pop();
         } else {
+            msgDone = true;
             stopIt();
         }
         this.curr_text = name + " " + phrase;
@@ -215,10 +256,9 @@ var SlideBox = function ( size, y_pos, speed, stay, pausing ) {
     this.speed = speed;
     this.stay = stay;
     this.holdoff = pausing;
-    this.phrases = shuffle(static_phrases.compliments);
+    this.phrases = shuffle(static_phrases.compliments).slice(0,5);
     this.fade = 'up';
     this.curr_text = '';
-    shuffle(this.phrases);
 
     this.update = function () {
         if (this.on == false) {
@@ -256,7 +296,7 @@ var SlideBox = function ( size, y_pos, speed, stay, pausing ) {
     this.ontime = function () {
         mine = this;
         this.going = false;
-        setTimeout(function () {
+        onNow2 = setTimeout(function () {
             mine.activate();
         }, mine.stay);
     }
@@ -270,7 +310,7 @@ var SlideBox = function ( size, y_pos, speed, stay, pausing ) {
     this.pause = function () {
         this.on = true;
         mine = this;
-        setTimeout(function () {
+        pauseNow2 = setTimeout(function () {
             mine.nextText();
         }, this.holdoff);
     }
@@ -279,6 +319,7 @@ var SlideBox = function ( size, y_pos, speed, stay, pausing ) {
         if (this.phrases.length > 0) {
             phrase = this.phrases.pop();
         } else {
+            compDone = true;
             stopIt();
         }
         this.curr_text = phrase;
@@ -304,6 +345,8 @@ function reBox() {
     //Take new user data and fill boxes
     msgBox = new FadeBox(48, windowWidth*.5, windowHeight*.9, 3000, 2000);
     compBox = new SlideBox(40, windowHeight*.1, 50, 1000, 2000);
+    msgDone = false;
+    compDone = false;
 
 }
 
@@ -311,20 +354,56 @@ function stopIt() {
     //Call when user scans again
     myCanvas.clear();
     background(0, 0 ,0);
+    noLoop();
     live = false;
+    for (time in allTimers) {
+        clearTimeout(allTimers[time]);
+    }
 }
 
-function startIt() {
+function startIt(userid) {
     //Call after a new scanner call
-    reBox();
-    loop();
-    live = true;
+    if (userid == 'test') {
+        reBox();
+        live = true;
+        loop();
+        showName = true;
+        killTimer = setTimeout(killName, 15000);
+    } else {
+     $.ajax({
+        type: 'POST',
+        url: 'http://iamadatapoint.com/mirror?userid='+userid,
+        data: data,
+        success: function(data) {
+            user_data = data
+            reBox();
+            loop();
+            live = true;
+            showName = true;
+            setTimeout(killName, 10000);
+        },
+        error: function(resp) {
+            //Later could make this display something?
+            stopIt();
+        }
+     });
+    }  
 }
+
+
+// socket.on('rfid', function (data) {
+//     if (live == true) {
+//         stopIt();
+//     } else {
+//         startIt(data.user_id);
+//     }
+
+// });
 
 function mouseClicked() {
     if (live == true) {
         stopIt();
     } else {
-        startIt();
+        startIt('test');
     }
 }
