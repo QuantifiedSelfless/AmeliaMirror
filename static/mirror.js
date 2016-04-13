@@ -1,4 +1,8 @@
 var user_data;
+var socket = io.connect('http://localhost:3000')
+socket.on('rfid', function(data){
+    console.log("Scanned a Thing!");
+})
 var static_phrases = {
     compliments: ["You look beautiful today",
         "Everyone at work is waiting for you",
