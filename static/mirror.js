@@ -2,9 +2,8 @@
 
 var user_data;
 var socket = io.connect('http://localhost:3000')
-socket.on('rfid', function(data){
-    console.log("Scanned a Thing!");
-})
+var baseurl = 'http://quantifiedselfbackend.local:6060/mirror_processor/mirror?';
+
 var static_phrases = {
     compliments: ["You look beautiful today",
         "Everyone at work is waiting for you",
@@ -80,15 +79,16 @@ function preload() {
     skyline = loadFont('static/Small Town Skyline.ttf');
     dancing = loadFont('static/dancing-script-ot/DancingScript-Regular.otf');
     lekton = loadFont('static/lekton/Lekton-Regular.ttf');
-    user_data = {
-        name: "Michael Skirpan",
-        friends: ["Jackie Cameron",
-        "Julie Cafarella",
-        "Simone Hyater-Adams",
-        "Patrick Cooper"],
-        work: ["CU-Boulder"],
+    // user_data = {
+    //     name: "Michael Skirpan",
+    //     friends: ["Jackie Cameron",
+    //     "Julie Cafarella",
+    //     "Simone Hyater-Adams",
+    //     "Patrick Cooper"],
+    //     work: ["CU-Boulder"],
 
-    }
+    // }
+    
     weather = loadJSON('http://api.openweathermap.org/data/2.5/weather?zip=80305&appid=4efeb242f4b0a7c03742769c5a5755e5');
     rando = floor(random(0, static_phrases.hellos.length));
     hello_text = static_phrases.hellos[rando];
@@ -374,25 +374,35 @@ function startIt(userid) {
         showName = true;
         killTimer = setTimeout(killName, 15000);
     } else {
-     $.ajax({
-        type: 'POST',
-        url: 'http://iamadatapoint.com/mirror?userid='+userid,
-        data: data,
-        success: function(data) {
-            user_data = data
-            reBox();
-            loop();
-            live = true;
-            showName = true;
-            setTimeout(killName, 10000);
-        },
-        error: function(resp) {
-            //Later could make this display something?
-            stopIt();
-        }
-     });
+         $.ajax({
+            url: baseurl + "userid=b9bef55d-e1c2-418b-979d-62762902ee38",
+            success: function(data) {
+                console.log(data.data);
+                user_data = data.data;
+                reBox();
+                live = true;
+                loop();
+                showName = true;
+                killTimer = setTimeout(killName, 15000);
+                
+            },
+            error: function(resp) {
+                console.log("didn't work");
+            
+            }
+        });
     }  
 }
+
+socket.on('rfid', function(data){
+    if (live == true) {
+        stopIt();
+    } else {
+        console.log("Scanned a Thing!");
+        console.log(data);
+        startIt(data);
+    }
+});
 
 
 // socket.on('rfid', function (data) {
