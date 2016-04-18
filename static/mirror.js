@@ -365,6 +365,37 @@ function stopIt() {
     }
 }
 
+function make_AJAX_call(userid, tryCount, retryLimit){
+    $.ajax({
+        type: 'GET',
+        url: baseurl + "rfid=" + userid,
+        success: function(data) {
+            console.log(data.data);
+            user_data = data.data;
+            reBox();
+            live = true;
+            loop();
+            showName = true;
+            killTimer = setTimeout(killName, 15000);
+        },
+        error: function(resp) {
+            console.log("Error: Ajax call failed");
+            tryCount++;
+            if (tryCount >= retryLimit){
+                stopIt();
+                console.log("shit didn't work");
+            }
+            else { //Try again with exponential backoff.
+                setTimeout(function(){ 
+                    return make_AJAX_call(data, tryCount, retryLimit);
+                }, Math.pow(2, tryCount) * 1000);
+                return false;
+            }
+        }
+    });
+    return false;
+}
+
 function startIt(userid) {
     //Call after a new scanner call
     if (userid == 'test') {
@@ -374,23 +405,7 @@ function startIt(userid) {
         showName = true;
         killTimer = setTimeout(killName, 15000);
     } else {
-         $.ajax({
-            url: baseurl + "userid=b9bef55d-e1c2-418b-979d-62762902ee38",
-            success: function(data) {
-                console.log(data.data);
-                user_data = data.data;
-                reBox();
-                live = true;
-                loop();
-                showName = true;
-                killTimer = setTimeout(killName, 15000);
-                
-            },
-            error: function(resp) {
-                console.log("didn't work");
-            
-            }
-        });
+         make_AJAX_call(userid, 0, 3);
     }  
 }
 
@@ -400,7 +415,7 @@ socket.on('rfid', function(data){
     } else {
         console.log("Scanned a Thing!");
         console.log(data);
-        startIt(data);
+        startIt(data.user_id);
     }
 });
 
