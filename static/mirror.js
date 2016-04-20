@@ -1,8 +1,7 @@
-//var socket = io.connect('http://localhost:3000');
-
 var user_data;
 var socket = io.connect('http://localhost:3000')
 var baseurl = 'http://quantifiedselfbackend.local:6060/mirror_processor/mirror?';
+var leaving = false;
 
 var static_phrases = {
     compliments: ["You look beautiful today",
@@ -141,7 +140,16 @@ function draw() {
         compBox.update();
     }
     if (msgDone == true && compDone == true) {
-        stopIt();
+        leavingNow();
+    }
+    if (leaving == true){
+        push();
+            fill(255, 255, 255);
+            textFont(replay);
+            textSize(36);
+            textAlign(CENTER);
+            text("Goodbye " + user_data.name, windowWidth*.5, windowHeight * .2 );
+        pop();
     }
 }
 
@@ -240,7 +248,7 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
             phrase = this.work.pop();
         } else {
             msgDone = true;
-            stopIt();
+            leavingNow();
         }
         this.curr_text = name + " " + phrase;
         this.on = true;
@@ -324,7 +332,7 @@ var SlideBox = function ( size, y_pos, speed, stay, pausing ) {
             phrase = this.phrases.pop();
         } else {
             compDone = true;
-            stopIt();
+            leavingNow();
         }
         this.curr_text = phrase;
         this.on = true;
@@ -356,6 +364,7 @@ function reBox() {
 
 function stopIt() {
     //Call when user scans again
+    leaving = false;
     myCanvas.clear();
     background(0, 0 ,0);
     noLoop();
@@ -363,6 +372,11 @@ function stopIt() {
     for (time in allTimers) {
         clearTimeout(allTimers[time]);
     }
+}
+
+function leavingNow() {
+    leaving = true;
+    setTimeout(stopIt, 5000);
 }
 
 function make_AJAX_call(userid, tryCount, retryLimit){
@@ -411,7 +425,7 @@ function startIt(userid) {
 
 socket.on('rfid', function(data){
     if (live == true) {
-        stopIt();
+        leavingNow();
     } else {
         console.log("Scanned a Thing!");
         console.log(data);
@@ -419,15 +433,6 @@ socket.on('rfid', function(data){
     }
 });
 
-
-// socket.on('rfid', function (data) {
-//     if (live == true) {
-//         stopIt();
-//     } else {
-//         startIt(data.user_id);
-//     }
-
-// });
 
 function mouseClicked() {
     if (live == true) {
