@@ -375,6 +375,7 @@ function stopIt() {
 }
 
 function leavingNow() {
+    showName = false;
     leaving = true;
     setTimeout(stopIt, 5000);
 }
