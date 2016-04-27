@@ -244,7 +244,7 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
         } else if (rando == 1 && this.phrases.length > 0) {
             rando1 = floor(random(0, user_data['work'].length));
             name = user_data['work'][rando1];
-            if (name == "None"){
+            if (name.length < 1){
                 name = "DesignCraft"
             }
             console.log(this.work);
