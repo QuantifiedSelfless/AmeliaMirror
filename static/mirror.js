@@ -413,12 +413,15 @@ function make_AJAX_call(userid, tryCount, retryLimit){
         },
         error: function(resp) {
             console.log("Error: Ajax call failed");
-            tryCount++;
-            if (tryCount >= retryLimit){
+            if (resp.statusCode == 403) {
                 whoareyou = true;
                 live = true;
                 loop();
                 killTimer = setTimeout(stopIt, 5000);
+            }
+            tryCount++;
+            if (tryCount >= retryLimit){
+                stopIt();
                 console.log("shit didn't work");
             }
             else { //Try again with exponential backoff.
