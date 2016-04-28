@@ -415,13 +415,14 @@ function make_AJAX_call(userid, tryCount, retryLimit){
         },
         error: function(resp) {
             console.log("Error: Ajax call failed");
+            console.log(resp);
             if (resp.statusCode == 403) {
                 console.log("Got 403");
                 whoareyou = true;
                 live = true;
                 loop();
                 killTimer = setTimeout(stopIt, 5000);
-                return false
+                return
             }
             tryCount++;
             if (tryCount >= retryLimit){
