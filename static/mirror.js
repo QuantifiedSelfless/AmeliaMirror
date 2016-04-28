@@ -2,6 +2,7 @@ var user_data;
 var socket = io.connect('http://localhost:3000')
 var baseurl = 'http://quantifiedselfbackend.local:6060/mirror_processor/mirror?';
 var leaving = false;
+var whoareyou = false;
 
 var static_phrases = {
     compliments: ["You look beautiful today",
@@ -150,7 +151,7 @@ function draw() {
             textAlign(CENTER);
             text("Goodbye " + user_data.name, windowWidth*.5, windowHeight * .2 );
         pop();
-    }
+    } 
 }
 
 function killName () {
@@ -239,7 +240,7 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
         if (rando == 0 && this.phrases.length > 0) {
             rando1 = floor(random(0, user_data['friends'].length));
             name = user_data['friends'][rando1];
-            if (name.length < 1 || name == "None" || name == null || typeof name == "undefined"){
+            if (name.length < 1 || name == "None" || name == null || typeof name == "undefined" || name == "undefined"){
                 name = "Don DeClaire";
             }
             console.log(this.phrases)
@@ -247,7 +248,7 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
         } else if (rando == 1 && this.phrases.length > 0) {
             rando1 = floor(random(0, user_data['work'].length));
             name = user_data['work'][rando1];
-            if (name.length < 1 || name == "None" || name == null || typeof name == "undefined"){
+            if (name.length < 1 || name == "None" || name == null || typeof name == "undefined" || name == "undefined"){
                 name = "DesignCraft"
             }
             console.log(this.work);
@@ -374,6 +375,7 @@ function stopIt() {
     myCanvas.clear();
     background(0, 0 ,0);
     noLoop();
+    whoareyou = false;
     live = false;
     for (time in allTimers) {
         clearTimeout(allTimers[time]);
@@ -403,7 +405,7 @@ function make_AJAX_call(userid, tryCount, retryLimit){
             console.log("Error: Ajax call failed");
             tryCount++;
             if (tryCount >= retryLimit){
-                stopIt();
+                badLeave();
                 console.log("shit didn't work");
             }
             else { //Try again with exponential backoff.
@@ -415,6 +417,17 @@ function make_AJAX_call(userid, tryCount, retryLimit){
         }
     });
     return false;
+}
+
+function badLeave() {
+       push();
+            fill(255, 255, 255);
+            textFont(replay);
+            textSize(36);
+            textAlign(CENTER);
+            text("I don't know you.. Goodbye!", windowWidth*.5, windowHeight * .2 );
+        pop(); 
+        setTimeout(stopIt, 5000);
 }
 
 function startIt(userid) {
