@@ -416,6 +416,7 @@ function make_AJAX_call(userid, tryCount, retryLimit){
         error: function(resp) {
             console.log("Error: Ajax call failed");
             if (resp.statusCode == 403) {
+                console.log("Got 403");
                 whoareyou = true;
                 live = true;
                 loop();
@@ -429,7 +430,7 @@ function make_AJAX_call(userid, tryCount, retryLimit){
             }
             else { //Try again with exponential backoff.
                 setTimeout(function(){ 
-                    return make_AJAX_call(data, tryCount, retryLimit);
+                    return make_AJAX_call(userid, tryCount, retryLimit);
                 }, Math.pow(2, tryCount) * 1000);
                 return false;
             }
