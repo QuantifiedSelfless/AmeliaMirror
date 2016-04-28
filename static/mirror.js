@@ -420,6 +420,7 @@ function make_AJAX_call(userid, tryCount, retryLimit){
                 live = true;
                 loop();
                 killTimer = setTimeout(stopIt, 5000);
+                return false
             }
             tryCount++;
             if (tryCount >= retryLimit){
