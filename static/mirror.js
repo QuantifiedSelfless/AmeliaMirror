@@ -112,6 +112,8 @@ function draw() {
     if (live == false) {
         return
     }
+    background('black');
+    image(weather_icon, windowWidth*.9, 10);
     if (whoareyou == true) {
         push();
             fill(255, 255, 255);
@@ -122,8 +124,6 @@ function draw() {
         pop(); 
         return
     }
-    background('black');
-    image(weather_icon, windowWidth*.9, 10);
     if (showName == true) {
         push();
             fill(255, 255, 255);
