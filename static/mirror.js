@@ -239,12 +239,15 @@ var FadeBox = function ( size, x_pos, y_pos, stay, pausing) {
         if (rando == 0 && this.phrases.length > 0) {
             rando1 = floor(random(0, user_data['friends'].length));
             name = user_data['friends'][rando1];
+            if (name.length < 1 || name == "None" || name == null || typeof name == "undefined"){
+                name = "Don DeClaire";
+            }
             console.log(this.phrases)
             phrase = this.phrases.pop();
         } else if (rando == 1 && this.phrases.length > 0) {
             rando1 = floor(random(0, user_data['work'].length));
             name = user_data['work'][rando1];
-            if (name.length < 1 || name == "None" || name == null){
+            if (name.length < 1 || name == "None" || name == null || typeof name == "undefined"){
                 name = "DesignCraft"
             }
             console.log(this.work);
