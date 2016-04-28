@@ -375,7 +375,6 @@ function stopIt() {
     myCanvas.clear();
     background(0, 0 ,0);
     noLoop();
-    whoareyou = false;
     live = false;
     for (time in allTimers) {
         clearTimeout(allTimers[time]);
@@ -420,6 +419,7 @@ function make_AJAX_call(userid, tryCount, retryLimit){
 }
 
 function badLeave() {
+    live = true;
        push();
             fill(255, 255, 255);
             textFont(replay);
