@@ -112,6 +112,16 @@ function draw() {
     if (live == false) {
         return
     }
+    if (whoareyou == true) {
+        push();
+            fill(255, 255, 255);
+            textFont(replay);
+            textSize(36);
+            textAlign(CENTER);
+            text("I don't know you.. Goodbye!", windowWidth*.5, windowHeight * .2 );
+        pop(); 
+        return
+    }
     background('black');
     image(weather_icon, windowWidth*.9, 10);
     if (showName == true) {
@@ -372,6 +382,7 @@ function reBox() {
 function stopIt() {
     //Call when user scans again
     leaving = false;
+    whoareyou = false;
     myCanvas.clear();
     background(0, 0 ,0);
     noLoop();
@@ -404,7 +415,10 @@ function make_AJAX_call(userid, tryCount, retryLimit){
             console.log("Error: Ajax call failed");
             tryCount++;
             if (tryCount >= retryLimit){
-                badLeave();
+                whoareyou = true;
+                live = true;
+                loop();
+                killTimer = setTimeout(stopIt, 5000);
                 console.log("shit didn't work");
             }
             else { //Try again with exponential backoff.
@@ -416,18 +430,6 @@ function make_AJAX_call(userid, tryCount, retryLimit){
         }
     });
     return false;
-}
-
-function badLeave() {
-    live = true;
-       push();
-            fill(255, 255, 255);
-            textFont(replay);
-            textSize(36);
-            textAlign(CENTER);
-            text("I don't know you.. Goodbye!", windowWidth*.5, windowHeight * .2 );
-        pop(); 
-        setTimeout(stopIt, 5000);
 }
 
 function startIt(userid) {
