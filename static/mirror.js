@@ -122,46 +122,48 @@ function draw() {
             textAlign(CENTER);
             text("I don't know you.. Goodbye!", windowWidth*.5, windowHeight * .2 );
         pop(); 
-        return
+    } else {
+
+
+        if (showName == true) {
+            push();
+                fill(255, 255, 255);
+                textFont(replay);
+                textSize(36);
+                textAlign(CENTER);
+                text(hello_text + " " + user_data.name, windowWidth*.5, windowHeight * .2 );
+            pop();
+        }
+        // } else {
+        //     push();
+        //         fill(255, 255, 255);
+        //         textFont(lekton);
+        //         textSize(32);
+        //         textAlign(LEFT);
+        //         text("TO-DO LIST:", windowWidth*.7, windowHeight*.4);
+        //         textSize(26);
+        //         text("1. Prep for meeting", windowWidth*.75, windowHeight*.45);
+        //     pop();
+        // }
+        if (msgDone == false){
+          msgBox.update();  
+        }
+        if (compDone == false){
+            compBox.update();
+        }
+        if (msgDone == true && compDone == true) {
+            leavingNow();
+        }
+        if (leaving == true){
+            push();
+                fill(255, 255, 255);
+                textFont(replay);
+                textSize(36);
+                textAlign(CENTER);
+                text("Goodbye " + user_data.name, windowWidth*.5, windowHeight * .2 );
+            pop();
+        } 
     }
-    if (showName == true) {
-        push();
-            fill(255, 255, 255);
-            textFont(replay);
-            textSize(36);
-            textAlign(CENTER);
-            text(hello_text + " " + user_data.name, windowWidth*.5, windowHeight * .2 );
-        pop();
-    }
-    // } else {
-    //     push();
-    //         fill(255, 255, 255);
-    //         textFont(lekton);
-    //         textSize(32);
-    //         textAlign(LEFT);
-    //         text("TO-DO LIST:", windowWidth*.7, windowHeight*.4);
-    //         textSize(26);
-    //         text("1. Prep for meeting", windowWidth*.75, windowHeight*.45);
-    //     pop();
-    // }
-    if (msgDone == false){
-      msgBox.update();  
-    }
-    if (compDone == false){
-        compBox.update();
-    }
-    if (msgDone == true && compDone == true) {
-        leavingNow();
-    }
-    if (leaving == true){
-        push();
-            fill(255, 255, 255);
-            textFont(replay);
-            textSize(36);
-            textAlign(CENTER);
-            text("Goodbye " + user_data.name, windowWidth*.5, windowHeight * .2 );
-        pop();
-    } 
 }
 
 function killName () {
